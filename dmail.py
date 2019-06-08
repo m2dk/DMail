@@ -9,10 +9,10 @@ config.read("client.ini")
 HOST = config['server']['hostname']
 USERNAME = config['account']['mailaddr']
 PASSWORD = config['account']['password']
-SET_READ = config['server']['setread']
+SET_READ = config['server']['setread'].lower()
 TIMEOUT = float(config['server']['timeout'])
 
-if(SET_READ == "False"):
+if(SET_READ == "false"):
     SET_READ = ""
 
 with IMAPClient(HOST) as server:
