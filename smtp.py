@@ -36,14 +36,15 @@ else:
     files = argv
     files.remove(files[0])
     for file in files:
-        route = os.getcwd() + '/' + file
-        attachment = open(route, "rb")
-        # MIMEbase call to add Content-Type header
-        p = MIMEBase('application', 'octet-stream')
-        p.set_payload((attachment).read())
-        encoders.encode_base64(p)
-        p.add_header('Content-Disposition', "attachment; filename= %s" %file)
-        MSG.attach(p)
+        if(file):
+            route = os.getcwd() + '/' + file
+            attachment = open(route, "rb")
+            # MIMEbase call to add Content-Type header
+            p = MIMEBase('application', 'octet-stream')
+            p.set_payload((attachment).read())
+            encoders.encode_base64(p)
+            p.add_header('Content-Disposition', "attachment; filename= %s" %file)
+            MSG.attach(p)
 
 # Connect to server using SMTP+SSL
 context = ssl.create_default_context()
