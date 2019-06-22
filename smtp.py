@@ -8,13 +8,18 @@ import smtplib, ssl
 from email import encoders
 import configparser
 import os
+import re
 
 # Generates a multipart MIME base class to be sent
 def maildetach():
     #RECEIVER_EMAIL = config ['receiver']['receiver_email']
+    Email_Regex = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$")
     MSG = MIMEMultipart()
     MSG["Subject"] = input("Subject: ")
-    MSG["To"] = input ("To: ")
+    mailadss = ""
+    while (not Email_Regex.match(mailadss)): 
+        mailadss = input ("Enter a valid email address: ")
+    MSG["To"] = mailadss
     MESSAGE = MIMEText(input("Body: "))
     MSG.attach(MESSAGE)
     return MSG
