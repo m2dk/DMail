@@ -16,9 +16,17 @@ def maildetach():
     Email_Regex = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$")
     MSG = MIMEMultipart()
     MSG["Subject"] = input("Subject: ")
-    mailadss = ""
-    while (not Email_Regex.match(mailadss)): 
+    mailpass= False
+    while (not(mailpass)): 
         mailadss = input ("Enter a valid email address: ")
+        mailarr = mailadss.split(", ")
+        for mailad in mailarr:
+            if (not Email_Regex.match(mailad)):
+                mailpass= False
+                print("For multiple addresses use 'example@mail.com, example2@mail.com'")
+                break
+            else:
+                mailpass = True
     MSG["To"] = mailadss
     MESSAGE = MIMEText(input("Body: "))
     MSG.attach(MESSAGE)
