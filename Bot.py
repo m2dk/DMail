@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import telegram
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Updater, InlineQueryHandler, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
+from telegram.ext import Updater, InlineQueryHandler, CommandHandler 
+from telegram.ext import MessageHandler, Filters, ConversationHandler, RegexHandler, CallbackQueryHandler
+from telegram.ext import ChosenInlineResultHandler
 import requests
 import re
 import logging
@@ -20,12 +23,13 @@ def start(bot, update):
 		bot.send_message(chat_id=chat_id, text='¡Buenas tardes!, bienvenido a DMail creado por M2DK.')
 	else:
 		bot.send_message(chat_id=chat_id, text='¡Buenas noches!, bienvenido a DMail creado por M2DK.')
+	reply_markup = telegram.InlineKeyboardMarkup([[telegram.InlineKeyboardButton("Si",callback_data="conection"),telegram.InlineKeyboardButton("No",callback_data="conectioff")]])
+	bot.send_message(chat_id=chat_id, text ="¿Quieres usar nuestros servicios?", reply_markup=reply_markup)
 
 def main():
     updater = Updater('983311490:AAHV5drXxXlgIqqGb0R0Z5tLA3BW2lxOdls')
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('start',start))
-
     updater.start_polling()
     updater.idle()
 
