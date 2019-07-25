@@ -8,6 +8,7 @@ import re
 import logging
 import datetime
 import re
+import urllib.request
 from sys import exit
 from imapclient import IMAPClient, SEEN #Librerias IMAP
 import email
@@ -16,6 +17,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 import smtplib, ssl #librerias SMTP
 from email import encoders
+import os
 #Informacion para el log del bot
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
@@ -87,7 +89,16 @@ def button(bot, update): #Función de manejo de botones
 			text="En el caso de haber varios destinatarios separelos con una coma y un espacio (', ') unicamente")
 		#respuesta obligatoria para el destino del mensaje, luego de la explicación para enviar el mensaje a varios destinatarios
 		bot.send_message(chat_id=query.message.chat_id, text ="Destino:", reply_markup=telegram.ForceReply(True))
-
+	elif(query.data=="adjuntar"):
+		bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id,
+			text="Envienos el archivo a continuación")
+		bot.send_message(chat_id=query.message.chat_id, text="Archivo:", reply_markup=telegram.ForceReply(True))
+	elif(query.data=="noadjuntar"):
+		bot.edit_message_text(chat_id=query.message.chat_id, message_id=query.message.message_id,
+			text="Todo listo, procederemos a enviar el correo")
+		envio(bot,query.message.chat_id)
+			#repeticion final
+		rep(bot,query.message.chat_id) 
 
 	
 
@@ -141,17 +152,30 @@ def comandos(bot,update):
 		bot.send_message(chat_id=chat_id, text ="Mensaje:", reply_markup=telegram.ForceReply(True)) #mensaje para el cuerpo del correo
 	elif(respuesta.text=="Mensaje:"): #manejador del cuerpo y el envio del mensaje
 		aenviar.attach(MIMEText(update.message.text,"plain")) #agrega el mensaje
-		context = ssl.create_default_context() #contexto del mensaje
-		with smtplib.SMTP_SSL(HOST_E,465,context=context) as server: #carga del mensaje
-			aenviar["From"] = mail #carga del emisor
-			server.login(mail, contra) #login al server
-			try : #try catch para el envio del mensaje
-				server.sendmail(mail, aenviar['To'].split(","), aenviar.as_string())#Envia el mensaje
-				bot.send_message(chat_id=chat_id, text="Mensaje enviado") # mensaje de confirmación.
-			except:
-				bot.send_message(chat_id=chat_id, text= "Ocurrio un error al enviar el mensaje") #Manejador del mensaje
-			#repeticion final
-			rep(bot,chat_id)
+		keyboard = [[InlineKeyboardButton("Si",callback_data="adjuntar"),
+		InlineKeyboardButton("No",callback_data="noadjuntar")]]
+		reply_markup=InlineKeyboardMarkup(keyboard,one_time_keyboard=True)
+		bot.send_message(chat_id=chat_id, text="¿Desea adjuntar algún archivo?", reply_markup= reply_markup)
+
+def archivo(bot,update):#manejador de archivos funciona casi exactamente igual que el SMTP del laboratorio 2
+	chat_id=update.message.chat_id #id del chat
+	respuesta=update.message.reply_to_message #mensaje de respuesta
+	if(respuesta.text=="Archivo:"):
+		file_id = update.message.document.file_id
+		file_name=update.message.document.file_name
+		document = bot.getFile(file_id).file_path
+		route = os.getcwd() + '/' + file_name
+		urllib.request.urlretrieve(document,route)
+		attachment = open(route, "rb")
+		p = MIMEBase('application', 'octet-stream')
+		p.set_payload((attachment).read())
+		encoders.encode_base64(p)
+		p.add_header('Content-Disposition', "attachment; filename= %s" %file_name)
+		aenviar.attach(p)
+		keyboard = [[InlineKeyboardButton("Si",callback_data="adjuntar"),
+		InlineKeyboardButton("No",callback_data="noadjuntar")]]
+		reply_markup=InlineKeyboardMarkup(keyboard,one_time_keyboard=True)
+		bot.send_message(chat_id=chat_id, text="¿Desea adjuntar algún otro archivo?", reply_markup= reply_markup)
 
 
 def rep(bot,chat): #funcion de repetición
@@ -159,6 +183,18 @@ def rep(bot,chat): #funcion de repetición
 	InlineKeyboardButton("Enviar",callback_data="enviar"), InlineKeyboardButton("Nada", callback_data="conectioff")]]
 	reply_markup = InlineKeyboardMarkup(keyboard, one_time_keyboard=True)
 	bot.send_message(chat_id=chat, text="¿Desea hacer algo más?", reply_markup=reply_markup)
+
+
+def envio(bot,chat): #Funcion que envia el correo
+	context = ssl.create_default_context() #contexto del mensaje
+	with smtplib.SMTP_SSL(HOST_E,465,context=context) as server: #carga del mensaje
+		aenviar["From"] = mail #carga del emisor
+		server.login(mail, contra) #login al server
+		try : #try catch para el envio del mensaje
+			server.sendmail(mail, aenviar['To'].split(","), aenviar.as_string())#Envia el mensaje
+			bot.send_message(chat_id=chat, text="Mensaje enviado") # mensaje de confirmación.
+		except:
+			bot.send_message(chat_id=chat, text= "Ocurrio un error al enviar el mensaje") #Manejador del mensaje
 
 
 HOST_E = 'smtp.gmail.com'
@@ -171,8 +207,13 @@ def main():
     dp.add_handler(CommandHandler('start',start))
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(MessageHandler(Filters.text,comandos))
+    dp.add_handler(MessageHandler(Filters.document,archivo))
     updater.start_polling()
     updater.idle()
 
 if __name__ == '__main__':
     main()
+
+
+
+    
