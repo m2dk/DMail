@@ -122,14 +122,18 @@ def comandos(bot,update):
 			with IMAPClient(HOST) as server:
 				try: #Primera conexion para verificar los datos
 					server.login(mail, contra)
-					bot.send_message(chat_id=chat_id, text="Conectados") # Sticker deberia ir aqui
+					bot.send_sticker(chat_id=update.message.chat_id, sticker='CAADAgADsggAAgi3GQITL8y1531UoQI') # Sticker deberia ir aqui
 					#menu de opciones una vez conectado
 					keyboard= [[InlineKeyboardButton("Revisar",callback_data="revisar"),
 					InlineKeyboardButton("Enviar",callback_data="enviar")]]
 					reply_markup = InlineKeyboardMarkup(keyboard, one_time_keyboard=True)
 					bot.send_message(chat_id=chat_id, text ="¿Qué quieres hacer?", reply_markup=reply_markup)
 				except: #mensaje de error
-					bot.send_message(chat_id=chat_id, text="No Conectados") #Sticker deberia ir aqui
+					bot.send_sticker(chat_id=chat_id, sticker='CAADAgADvQgAAgi3GQJ5Y2qUgnnOKgI') #Sticker deberia ir aqui
+					keyboard= [[InlineKeyboardButton("Si",callback_data="conection"),
+					InlineKeyboardButton("No", callback_data="conectioff")]]
+					reply_markup= InlineKeyboardMarkup(keyboard, one_time_keyboard=True)
+					bot.send_message(chat_id=chat_id, text="¿Quieres intentar nuevamente?", reply_markup=reply_markup)
 	elif(respuesta.text=="Destino:"): #Mensaje para la cuenta destino
 		Email_Regex = re.compile(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$") #Expresion regular para la cuenta a enviar
 		mailes=update.message.text #mails a enviar
@@ -177,6 +181,10 @@ def archivo(bot,update):#manejador de archivos funciona casi exactamente igual q
 		reply_markup=InlineKeyboardMarkup(keyboard,one_time_keyboard=True)
 		bot.send_message(chat_id=chat_id, text="¿Desea adjuntar algún otro archivo?", reply_markup= reply_markup)
 
+def stickerm(bot,update):
+	message=update.message
+	print(message)
+
 
 def rep(bot,chat): #funcion de repetición
 	keyboard= [[InlineKeyboardButton("Revisar",callback_data="revisar"),
@@ -208,6 +216,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(MessageHandler(Filters.text,comandos))
     dp.add_handler(MessageHandler(Filters.document,archivo))
+    dp.add_handler(MessageHandler(Filters.sticker,stickerm))
     updater.start_polling()
     updater.idle()
 
