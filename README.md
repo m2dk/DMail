@@ -8,7 +8,7 @@ includes:
 
 * launch.py ~ launches all other utilities with a nice menu.
 
-*Bot.py ~ Telegram bot that integrate previous functionalities.
+* Bot.py ~ Telegram bot that integrate previous functionalities.
 
 ## Dependencies
 imapclient 2.1.0-py3, py-smtp 1.0.8, pyTelegramBotAPI 3.6.6, telegram 0.0.1.
