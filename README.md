@@ -29,5 +29,5 @@ if there are unseen messages in it.
 filenames as parameters. It will ask for subject, destination address and
 body of the mail.
 
-Also, you can run Bot.py and use your computer as a server, this way you can start
+Also, you can run `./Bot.py` and use your computer as a server, this way you can start
 a chat with M2DK_Bot and proceed to manage your messages.
