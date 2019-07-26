@@ -8,8 +8,10 @@ includes:
 
 * launch.py ~ launches all other utilities with a nice menu.
 
+*Bot.py ~ Telegram bot that integrate previous functionalities.
+
 ## Dependencies
-imapclient 2.1.0-py3
+imapclient 2.1.0-py3, py-smtp 1.0.8, pyTelegramBotAPI 3.6.6, telegram 0.0.1.
 
 ## Usage
 The simplest way to use a program in the DMail suite is by launching them through
@@ -26,3 +28,6 @@ if there are unseen messages in it.
 `./smtp.py` in your terminal. Optionally, you can send attachments by passing
 filenames as parameters. It will ask for subject, destination address and
 body of the mail.
+
+Also, you can run Bot.py and use your computer as a server, this way you can start
+a chat with M2DK_Bot and proceed to manage your messages.
