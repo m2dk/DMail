@@ -181,9 +181,23 @@ def archivo(bot,update):#manejador de archivos funciona casi exactamente igual q
 		reply_markup=InlineKeyboardMarkup(keyboard,one_time_keyboard=True)
 		bot.send_message(chat_id=chat_id, text="¿Desea adjuntar algún otro archivo?", reply_markup= reply_markup)
 
-def stickerm(bot,update):
-	message=update.message
-	print(message)
+def foto(bot,update):
+	chat_id=update.message.chat_id
+	file_id= update.message.photo[1].file_id
+	document = bot.getFile(file_id).file_path
+	route = os.getcwd() + '/pic.jpg'
+	urllib.request.urlretrieve(document,route)
+	attachment = open(route, "rb")
+	p = MIMEBase('application', 'octet-stream')
+	p.set_payload((attachment).read())
+	encoders.encode_base64(p)
+	p.add_header('Content-Disposition', "attachment; filename= pic.jpg")
+	aenviar.attach(p)
+	keyboard = [[InlineKeyboardButton("Si",callback_data="adjuntar"),
+	InlineKeyboardButton("No",callback_data="noadjuntar")]]
+	reply_markup=InlineKeyboardMarkup(keyboard,one_time_keyboard=True)
+	bot.send_message(chat_id=chat_id, text="¿Desea adjuntar algún otro archivo?", reply_markup= reply_markup)
+
 
 
 def rep(bot,chat): #funcion de repetición
@@ -216,7 +230,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(button))
     dp.add_handler(MessageHandler(Filters.text,comandos))
     dp.add_handler(MessageHandler(Filters.document,archivo))
-    dp.add_handler(MessageHandler(Filters.sticker,stickerm))
+    dp.add_handler(MessageHandler(Filters.photo,foto))
     updater.start_polling()
     updater.idle()
 
